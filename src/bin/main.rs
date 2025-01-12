@@ -30,6 +30,51 @@ fn example_simplex_noise() {
 }
 
 #[allow(dead_code)]
+fn example_simplex_stack_noise() {
+    let mut rng = thread_rng();
+
+    let noise_a = Simplex::new(&mut rng);
+    let noise_b = Simplex::new(&mut rng);
+    let noise_c = Simplex::new(&mut rng);
+    let noise_d = Simplex::new(&mut rng);
+    let noise_e = Simplex::new(&mut rng);
+    let noise_f = Simplex::new(&mut rng);
+    let noise_g = Simplex::new(&mut rng);
+    let a = 2.0;
+    let b = 5.0;
+    let c = 11.0;
+    let d = 25.0;
+    let e = 41.0;
+    let f = 61.0;
+    let g = 101.0;
+
+    let resolution = (1000, 1000);
+    let mut samples = Array2::zeros(resolution);
+    let width = samples.ncols();
+    let height = samples.nrows();
+    for ((xi, yi), value) in samples.indexed_iter_mut() {
+        let x = xi as f32 / width as f32;
+        let y = yi as f32 / height as f32;
+        *value += noise_a.sample(x * a, y * a) * 10.0;
+        *value += noise_b.sample(x * b, y * b) * 5.0;
+        *value += noise_c.sample(x * c, y * c) * 2.5;
+        *value += noise_d.sample(x * d, y * d) * 1.25;
+        *value += noise_e.sample(x * e, y * e) * 0.625;
+        *value += noise_f.sample(x * f, y * f) * 0.3125;
+        *value += noise_g.sample(x * g, y * g) * 0.15625;
+    }
+
+    // Normalize the samples to the range [0, 1]
+    let min = samples.iter().fold(f32::INFINITY, |a, &b| a.min(b));
+    let max = samples.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
+    let range = max - min;
+    samples.mapv_inplace(|v| (v - min) / range);
+
+    // Save the samples as an image
+    samples.save("output.png").expect("Failed to save image");
+}
+
+#[allow(dead_code)]
 fn example_perlin_noise() {
     let mut rng = thread_rng();
 
@@ -207,7 +252,8 @@ fn example_terrain_generation() {
 
 fn main() {
     // example_simplex_noise();
+    example_simplex_stack_noise();
     // example_perlin_noise();
     // example_perlin_stack_noise();
-    example_terrain_generation();
+    // example_terrain_generation();
 }
