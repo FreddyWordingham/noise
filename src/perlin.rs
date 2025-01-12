@@ -10,12 +10,14 @@ pub struct Perlin {
 
 impl Perlin {
     pub fn new<R: Rng>(shape: (usize, usize), mut rng: R) -> Self {
+        assert!(shape.0 > 0 && shape.1 > 0);
+
         let vectors = Array2::from_shape_fn(shape, |(_x, _y)| {
             let angle = TAU * rng.gen::<f32>();
             Unit::new_normalize(Vector2::new(angle.cos(), angle.sin()))
         });
 
-        Perlin { vectors }
+        Self { vectors }
     }
 
     pub fn sample(&self, x: f32, y: f32) -> f32 {
