@@ -4,7 +4,7 @@ use noise::{Noise, Worley};
 use rand::prelude::*;
 
 const NUM_POINTS: usize = 17;
-const RESOLUTION: (usize, usize) = (1000, 1000);
+const RESOLUTION: (usize, usize) = (512, 512);
 const OUTPUT_FILE: &str = "output/worley.png";
 
 fn main() {

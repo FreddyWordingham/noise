@@ -9,7 +9,7 @@ const PERLIN_MD: ((usize, usize), f32) = ((21, 21), 0.25);
 const PERLIN_LG: ((usize, usize), f32) = ((11, 11), 0.5);
 const PERLIN_XL: ((usize, usize), f32) = ((5, 5), 1.0);
 
-const RESOLUTION: (usize, usize) = (1000, 1000);
+const RESOLUTION: (usize, usize) = (512, 512);
 const OUTPUT_FILE: &str = "output/perlin-stack.png";
 
 fn main() {

@@ -4,7 +4,7 @@ use noise::{Noise, Simplex};
 use rand::prelude::*;
 
 const SCALE: f32 = 16.0;
-const RESOLUTION: (usize, usize) = (1000, 1000);
+const RESOLUTION: (usize, usize) = (512, 512);
 const OUTPUT_FILE: &str = "output/simplex.png";
 
 fn main() {

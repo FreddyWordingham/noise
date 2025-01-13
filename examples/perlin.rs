@@ -4,7 +4,7 @@ use noise::{Noise, Perlin};
 use rand::prelude::*;
 
 const SHAPE: (usize, usize) = (5, 7);
-const RESOLUTION: (usize, usize) = (1000, 1000);
+const RESOLUTION: (usize, usize) = (512, 512);
 const OUTPUT_FILE: &str = "output/perlin.png";
 
 fn main() {

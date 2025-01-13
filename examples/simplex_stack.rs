@@ -9,7 +9,7 @@ const SIMPLEX_MD: (f32, f32) = (21.0, 0.25);
 const SIMPLEX_LG: (f32, f32) = (11.0, 0.5);
 const SIMPLEX_XL: (f32, f32) = (5.0, 1.0);
 
-const RESOLUTION: (usize, usize) = (1000, 1000);
+const RESOLUTION: (usize, usize) = (512, 512);
 const OUTPUT_FILE: &str = "output/simplex-stack.png";
 
 fn main() {
