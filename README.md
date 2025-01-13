@@ -53,3 +53,33 @@ let noise = Stack::new(vec![
 ## Tileable Noise
 
 By default all noise types other than Simplex noise will repeatedly tile.
+
+## Examples
+
+You can run the examples to generate images of the noise functions.
+
+First, clone the repository and set the current directory to the root of the repository:
+
+```sh
+git clone https://github.com/FreddyWordingham/noise.git
+cd noise
+```
+
+Make sure to create the `./output` directory for the images to be saved to:
+
+```sh
+mkdir ./output
+```
+
+Then, build the examples:
+
+```sh
+cargo build --release --examples
+```
+
+And run the example you want to generate an image.
+For example, to generate an image of stacked Simplex noise:
+
+```sh
+cargo run --release --example simplex_stack
+```
