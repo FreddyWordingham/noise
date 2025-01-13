@@ -1,6 +1,6 @@
 use ndarray::Array2;
 use ndarray_images::Image;
-use noise::{Noise, Perlin};
+use noisette::{Noise, Perlin};
 use rand::prelude::*;
 
 const SHAPE: (usize, usize) = (5, 7);

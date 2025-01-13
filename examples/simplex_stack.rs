@@ -1,6 +1,6 @@
 use ndarray::Array2;
 use ndarray_images::Image;
-use noise::{Noise, Simplex, Stack};
+use noisette::{Noise, Simplex, Stack};
 use rand::prelude::*;
 
 const SIMPLEX_XS: (f32, f32) = (43.0, 0.0625);

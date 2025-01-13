@@ -1,6 +1,6 @@
 use ndarray::Array2;
 use ndarray_images::Image;
-use noise::{Noise, Worley};
+use noisette::{Noise, Worley};
 use rand::prelude::*;
 
 const NUM_POINTS: usize = 17;

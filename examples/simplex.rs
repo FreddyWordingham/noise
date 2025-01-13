@@ -1,6 +1,6 @@
 use ndarray::Array2;
 use ndarray_images::Image;
-use noise::{Noise, Simplex};
+use noisette::{Noise, Simplex};
 use rand::prelude::*;
 
 const SCALE: f32 = 16.0;

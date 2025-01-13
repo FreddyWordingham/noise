@@ -1,6 +1,6 @@
 use ndarray::Array2;
 use ndarray_images::Image;
-use noise::{Noise, Perlin, Stack};
+use noisette::{Noise, Perlin, Stack};
 use rand::prelude::*;
 
 const PERLIN_XS: ((usize, usize), f32) = ((43, 43), 0.0625);
