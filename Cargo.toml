@@ -2,6 +2,8 @@
 name = "noisette"
 version = "0.0.0"
 edition = "2021"
+description = "A simple library for generating 2D noise"
+license = "MIT"
 
 [dependencies]
 nalgebra = "0.33.2"
