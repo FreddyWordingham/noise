@@ -1,7 +1,9 @@
+mod noise;
 mod perlin;
-mod perlin_stack;
 mod simplex;
+mod worley;
 
+pub use noise::Noise;
 pub use perlin::Perlin;
-pub use perlin_stack::PerlinStack;
 pub use simplex::Simplex;
+pub use worley::Worley;

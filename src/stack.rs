@@ -7,7 +7,7 @@ pub struct PerlinStack {
 }
 
 impl PerlinStack {
-    pub fn new<R: Rng>(layers: Vec<((usize, usize), f32)>, mut rng: R) -> Self {
+    pub fn new<R: Rng>(layers: &[((usize, usize), f32)], mut rng: R) -> Self {
         assert!(layers.len() > 0);
         assert!(layers
             .iter()

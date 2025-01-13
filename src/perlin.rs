@@ -4,6 +4,8 @@ use nalgebra::{Unit, Vector2};
 use ndarray::Array2;
 use rand::Rng;
 
+use crate::noise::Noise;
+
 pub struct Perlin {
     vectors: Array2<Unit<Vector2<f32>>>,
 }
@@ -20,7 +22,20 @@ impl Perlin {
         Self { vectors }
     }
 
-    pub fn sample(&self, x: f32, y: f32) -> f32 {
+    fn grad_dot(&self, gx: i32, gy: i32, x: f32, y: f32) -> f32 {
+        self.gradient(gx, gy).dot(&Vector2::new(x, y))
+    }
+
+    fn gradient(&self, x: i32, y: i32) -> &Unit<Vector2<f32>> {
+        let (rows, cols) = self.vectors.dim();
+        let nx = x.rem_euclid(cols as i32) as usize;
+        let ny = y.rem_euclid(rows as i32) as usize;
+        &self.vectors[(ny, nx)]
+    }
+}
+
+impl Noise for Perlin {
+    fn sample(&self, x: f32, y: f32) -> f32 {
         let (width, height) = self.vectors.dim();
         let px = x * width as f32;
         let py = y * height as f32;
@@ -48,17 +63,6 @@ impl Perlin {
         let nx0 = lerp(g00, g10, u);
         let nx1 = lerp(g01, g11, u);
         lerp(nx0, nx1, v)
-    }
-
-    fn grad_dot(&self, gx: i32, gy: i32, x: f32, y: f32) -> f32 {
-        self.gradient(gx, gy).dot(&Vector2::new(x, y))
-    }
-
-    fn gradient(&self, x: i32, y: i32) -> &Unit<Vector2<f32>> {
-        let (rows, cols) = self.vectors.dim();
-        let nx = x.rem_euclid(cols as i32) as usize;
-        let ny = y.rem_euclid(rows as i32) as usize;
-        &self.vectors[(ny, nx)]
     }
 }
 

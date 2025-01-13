@@ -1,11 +1,14 @@
 use rand::Rng;
 
+use crate::noise::Noise;
+
 pub struct Simplex {
+    scale: f32,
     perm: [u8; 512], // Permutation table repeated twice
 }
 
 impl Simplex {
-    pub fn new<R: Rng>(mut rng: R) -> Self {
+    pub fn new<R: Rng>(scale: f32, mut rng: R) -> Self {
         // Generate a random permutation of 0..255
         let mut p = [0u8; 256];
         for (i, val) in p.iter_mut().enumerate() {
@@ -23,10 +26,21 @@ impl Simplex {
             perm[i] = p[i & 255];
         }
 
-        Simplex { perm }
+        Simplex { scale, perm }
     }
 
-    pub fn sample(&self, x: f32, y: f32) -> f32 {
+    // Hash corner coords -> gradient index
+    fn hash(&self, x: i32, y: i32) -> usize {
+        let idx = self.perm[(x & 255) as usize] as usize;
+        self.perm[(idx + (y & 255) as usize) & 511] as usize
+    }
+}
+
+impl Noise for Simplex {
+    fn sample(&self, mut x: f32, mut y: f32) -> f32 {
+        x *= self.scale;
+        y *= self.scale;
+
         // Skewing/Unskewing factors for 2D
         const F2: f32 = 0.3660254037844386; // 0.5 * (sqrt(3.0) - 1.0)
         const G2: f32 = 0.21132486540518713; // (3.0 - sqrt(3.0)) / 6.0
@@ -63,12 +77,6 @@ impl Simplex {
 
         // Scale the result
         70.0 * (n0 + n1 + n2)
-    }
-
-    // Hash corner coords -> gradient index
-    fn hash(&self, x: i32, y: i32) -> usize {
-        let idx = self.perm[(x & 255) as usize] as usize;
-        self.perm[(idx + (y & 255) as usize) & 511] as usize
     }
 }
 
