@@ -1,40 +1,72 @@
-use ndarray::Array2;
+use nalgebra::Vector2;
+use ndarray::{Array2, Zip};
 use ndarray_images::Image;
 use noisette::{Noise, Worley};
 use rand::prelude::*;
 
 const NUM_POINTS: usize = 17;
-const RESOLUTION: (usize, usize) = (512, 512);
-const OUTPUT_FILE: &str = "output/worley.png";
+const RESOLUTION: (usize, usize) = (1024, 1024);
+const OUTPUT_NOISE_FILE: &str = "output/worley-samples.png";
+const OUTPUT_GRADIENT_FILE: &str = "output/worley-gradient.png";
+
+fn sample_noise<N: Noise>(
+    resolution: (usize, usize),
+    noise: &N,
+) -> (Array2<f32>, Array2<Vector2<f32>>) {
+    let width = resolution.1;
+    let height = resolution.0;
+
+    let mut samples = Array2::zeros(RESOLUTION);
+    let mut gradients = Array2::from_elem(RESOLUTION, Vector2::zeros());
+
+    Zip::indexed(&mut samples)
+        .and(&mut gradients)
+        .for_each(|(xi, yi), sample, gradient| {
+            let x = xi as f32 / width as f32;
+            let y = yi as f32 / height as f32;
+            *sample = noise.sample(x, y);
+            *gradient = noise.gradient(x, y);
+        });
+
+    (samples, gradients)
+}
+
+fn find_min_max(data: &Array2<f32>) -> (f32, f32) {
+    let min = data.iter().fold(f32::INFINITY, |a, &b| a.min(b));
+    let max = data.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
+    (min, max)
+}
+
+fn magnitudes(data: &Array2<Vector2<f32>>) -> Array2<f32> {
+    data.mapv(|v| v.norm())
+}
+
+fn normalize(data: &mut Array2<f32>) {
+    let min = data.iter().fold(f32::INFINITY, |a, &b| a.min(b));
+    let max = data.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
+    let range = max - min;
+    data.mapv_inplace(|v| (v - min) / range);
+}
+
+fn save(data: &Array2<f32>, filename: &str) {
+    data.save(filename)
+        .expect(&format!("Failed to save {}", filename));
+}
 
 fn main() {
-    // Random number generator
     let mut rng = thread_rng();
 
-    // Generate the noise
     let noise = Worley::new(NUM_POINTS, &mut rng);
+    let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);
 
-    // Sample the noise regularly across the unit square
-    let mut samples = Array2::zeros(RESOLUTION);
-    let width = samples.ncols();
-    let height = samples.nrows();
-    for ((xi, yi), value) in samples.indexed_iter_mut() {
-        let x = xi as f32 / width as f32;
-        let y = yi as f32 / height as f32;
-        *value = noise.sample(x, y);
-    }
+    let (min, max) = find_min_max(&samples);
+    println!("Samples min: {}, max: {}", min, max);
+    normalize(&mut samples);
+    save(&samples, OUTPUT_NOISE_FILE);
 
-    // Analyze the sample data
-    let min = samples.iter().fold(f32::INFINITY, |a, &b| a.min(b));
-    let max = samples.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
-    let range = max - min;
-    println!("Min: {}, Max: {}, Range: {}", min, max, range);
-
-    // Normalize the samples to the range [0, 1]
-    samples.mapv_inplace(|v| (v - min) / range);
-
-    // Save the samples as an image
-    samples
-        .save(OUTPUT_FILE)
-        .expect(&format!("Failed to save {}", OUTPUT_FILE));
+    let mut magnitudes = magnitudes(&gradients);
+    let (min, max) = find_min_max(&magnitudes);
+    println!("Magnitudes min: {}, max: {}", min, max);
+    normalize(&mut magnitudes);
+    save(&magnitudes, OUTPUT_GRADIENT_FILE);
 }

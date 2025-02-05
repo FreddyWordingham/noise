@@ -43,4 +43,12 @@ impl Noise for Worley {
             .map(|p| (p - sample_point).norm())
             .fold(f32::MAX, f32::min)
     }
+
+    /// Computes the numerical gradient of the Worley noise at a given point.
+    fn gradient(&self, x: f32, y: f32) -> Vector2<f32> {
+        let epsilon = 4e-3;
+        let dx = (self.sample(x + epsilon, y) - self.sample(x - epsilon, y)) / (2.0 * epsilon);
+        let dy = (self.sample(x, y + epsilon) - self.sample(x, y - epsilon)) / (2.0 * epsilon);
+        Vector2::new(dx, dy)
+    }
 }
