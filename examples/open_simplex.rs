@@ -1,13 +1,13 @@
 use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
-use noisette::{Noise, Simplex};
+use noisette::{Noise, OpenSimplex};
 use rand::prelude::*;
 
 const SCALE: f32 = 16.0;
 const RESOLUTION: (usize, usize) = (1024, 1024);
-const OUTPUT_NOISE_FILE: &str = "output/simplex-samples.png";
-const OUTPUT_GRADIENT_FILE: &str = "output/simplex-gradient.png";
+const OUTPUT_NOISE_FILE: &str = "output/open_simplex-samples.png";
+const OUTPUT_GRADIENT_FILE: &str = "output/open_simplex-gradient.png";
 
 fn sample_noise<N: Noise>(
     resolution: (usize, usize),
@@ -56,7 +56,7 @@ fn save(data: &Array2<f32>, filename: &str) {
 fn main() {
     let mut rng = thread_rng();
 
-    let noise = Simplex::new(SCALE, 21, &mut rng);
+    let noise = OpenSimplex::new(SCALE, 56, &mut rng);
     let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);
 
     let (min, max) = find_min_max(&samples);
