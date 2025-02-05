@@ -32,6 +32,36 @@ impl Perlin {
         let ny = y.rem_euclid(rows as i32) as usize;
         &self.vectors[(ny, nx)]
     }
+
+    pub fn sample_gradient(&self, x: f32, y: f32) -> Vector2<f32> {
+        let (width, height) = self.vectors.dim();
+        let px = x * width as f32;
+        let py = y * height as f32;
+
+        let x0 = (px.floor() as i32) % width as i32;
+        let y0 = (py.floor() as i32) % height as i32;
+        let x1 = (x0 + 1) % width as i32;
+        let y1 = (y0 + 1) % height as i32;
+
+        let xf = px - px.floor();
+        let yf = py - py.floor();
+
+        let g00 = self.grad_dot(x0, y0, xf, yf);
+        let g10 = self.grad_dot(x1, y0, xf - 1.0, yf);
+        let g01 = self.grad_dot(x0, y1, xf, yf - 1.0);
+        let g11 = self.grad_dot(x1, y1, xf - 1.0, yf - 1.0);
+
+        let u = fade(xf);
+        let v = fade(yf);
+
+        let du = fade_derivative(xf);
+        let dv = fade_derivative(yf);
+
+        let d_nx = (1.0 - v) * (g10 - g00) * du + v * (g11 - g01) * du;
+        let d_ny = (1.0 - u) * (g01 - g00) * dv + u * (g11 - g10) * dv;
+
+        Vector2::new(d_nx, d_ny)
+    }
 }
 
 impl Noise for Perlin {
@@ -68,6 +98,10 @@ impl Noise for Perlin {
 
 fn fade(t: f32) -> f32 {
     t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+}
+
+fn fade_derivative(t: f32) -> f32 {
+    30.0 * t * t - 60.0 * t * t * t + 30.0 * t * t * t * t
 }
 
 fn lerp(a: f32, b: f32, t: f32) -> f32 {
