@@ -4,7 +4,7 @@
 
 ## Usage
 
-This crate provides a simple API for creating `Noise` objects which can be sampled within the unit square:
+This crate provides a simple API for creating `Noise` objects which can be sampled within the unit square for both their value and analytical gradient.
 
 ```rust
 let mut rng = thread_rng();
@@ -12,21 +12,8 @@ let mut rng = thread_rng();
 let noise = Perlin::new(SHAPE, &mut rng);
 
 let value = noise.sample([0.25, 0.75]);
+let gradient = noise.gradient([0.25, 0.75]);
 ```
-
-## Features
-
-### Perlin Noise
-
-![Perlin Noise](./assets/images/perlin.png)
-
-### Simplex Noise
-
-![Simplex Noise](./assets/images/simplex.png)
-
-### Worley Noise
-
-![Worley Noise](./assets/images/worley.png)
 
 ### Stacks
 
@@ -42,17 +29,43 @@ let noise = Stack::new(vec![
 ]);
 ```
 
-![Stacked Perlin](./assets/images/perlin-stack.png)
+## Features
 
-> Stacked Perlin noise
+Left: Each of the images below show the sampled noise function over the unit square, tiled 2 times in each direction to show the periodicity of the noise.
 
-![Stacked Simplex](./assets/images/simplex-stack.png)
+Right: The magnitude of the gradient of the noise function scaled to the range [0, 1].
 
-> Stacked Simplex noise
+Top: A single noise function.
 
-## Tileable Noise
+Bottom: A stack of multiple noise functions with different weights.
 
-By default all noise types other than Simplex noise will repeatedly tile.
+### Perlin Noise
+
+![Perlin Noise](./assets/images/perlin-combined.png)
+
+![Perlin Noise](./assets/images/perlin_stack-combined.png)
+
+### Simplex Noise
+
+![Simplex Noise](./assets/images/simplex-combined.png)
+
+![Simplex Noise](./assets/images/simplex_stack-combined.png)
+
+### OpenSimplex Noise
+
+![OpenSimplex Noise](./assets/images/open_simplex-combined.png)
+
+![OpenSimplex Noise](./assets/images/open_simplex_stack-combined.png)
+
+> Note: Simplex noise is inherently not tileable, however the OpenSimplex implementation is tileable (by using 4D space).
+
+### Worley Noise
+
+![Worley Noise](./assets/images/worley-combined.png)
+
+![Worley Noise](./assets/images/worley_stack-combined.png)
+
+> Note: The gradient of the Worley noise can not be determined analytically, so the gradient is approximated using central differences.
 
 ## Examples
 
@@ -81,5 +94,5 @@ And run the example you want to generate an image.
 For example, to generate an image of stacked Simplex noise:
 
 ```sh
-cargo run --release --example simplex_stack
+cargo run --release --example open_simplex_stack
 ```

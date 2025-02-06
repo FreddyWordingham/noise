@@ -4,8 +4,8 @@ use std::f32::consts::PI;
 
 use crate::Noise;
 
-const SKEW_FACTOR: f32 = 0.3090169943749474; // (sqrt(5) - 1) / 4;
-const UNSKEW_FACTOR: f32 = 0.1381966011250105; // (5 - sqrt(5)) / 20;
+const SKEW_FACTOR: f32 = 0.309_017; // (sqrt(5) - 1) / 4;
+const UNSKEW_FACTOR: f32 = 0.138_196_6; // (5 - sqrt(5)) / 20;
 
 pub struct OpenSimplex {
     scale: f32,
@@ -298,7 +298,7 @@ impl OpenSimplex {
                         (-1.0, -1.0, 1.0, 0.0),
                         (-1.0, -1.0, -1.0, 0.0),
                     ];
-                    let gradient = GRADIENTS_4D[grad_index as usize % 32];
+                    let gradient = GRADIENTS_4D[grad_index % 32];
                     let dot_product =
                         gradient.0 * dx + gradient.1 * dy + gradient.2 * dz + gradient.3 * dw;
                     noise_value += attenuation4 * dot_product;

@@ -3,8 +3,8 @@ use rand::Rng;
 
 use crate::noise::Noise;
 
-const SKEW_FACTOR: f32 = 0.3660254037844386; // 0.5 * (sqrt(3) - 1)
-const UNSKEW_FACTOR: f32 = 0.21132486540518713; // (3 - sqrt(3)) / 6
+const SKEW_FACTOR: f32 = 0.366_025_42; // 0.5 * (sqrt(3) - 1)
+const UNSKEW_FACTOR: f32 = 0.211_324_87; // (3 - sqrt(3)) / 6
 
 pub struct Simplex {
     scale: f32,
