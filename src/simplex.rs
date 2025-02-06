@@ -3,6 +3,9 @@ use rand::Rng;
 
 use crate::noise::Noise;
 
+const SKEW_FACTOR: f32 = 0.3660254037844386; // 0.5 * (sqrt(3) - 1)
+const UNSKEW_FACTOR: f32 = 0.21132486540518713; // (3 - sqrt(3)) / 6
+
 pub struct Simplex {
     scale: f32,
     perm: [u8; 512], // Permutation table repeated twice
@@ -42,17 +45,13 @@ impl Noise for Simplex {
         x *= self.scale;
         y *= self.scale;
 
-        // Skewing/Unskewing factors for 2D
-        const F2: f32 = 0.3660254037844386; // 0.5 * (sqrt(3.0) - 1.0)
-        const G2: f32 = 0.21132486540518713; // (3.0 - sqrt(3.0)) / 6.0
-
         // Skew input space to determine which simplex cell we’re in
-        let s = (x + y) * F2;
+        let s = (x + y) * SKEW_FACTOR;
         let ix = (x + s).floor() as i32;
         let iy = (y + s).floor() as i32;
 
         // Unskew back
-        let t = ((ix + iy) as f32) * G2;
+        let t = ((ix + iy) as f32) * UNSKEW_FACTOR;
         let x0 = x - (ix as f32 - t);
         let y0 = y - (iy as f32 - t);
 
@@ -60,11 +59,11 @@ impl Noise for Simplex {
         let (i1, j1) = if x0 > y0 { (1, 0) } else { (0, 1) };
 
         // Offsets for middle corner
-        let x1 = x0 - i1 as f32 + G2;
-        let y1 = y0 - j1 as f32 + G2;
+        let x1 = x0 - i1 as f32 + UNSKEW_FACTOR;
+        let y1 = y0 - j1 as f32 + UNSKEW_FACTOR;
         // Offsets for last corner
-        let x2 = x0 - 1.0 + 2.0 * G2;
-        let y2 = y0 - 1.0 + 2.0 * G2;
+        let x2 = x0 - 1.0 + 2.0 * UNSKEW_FACTOR;
+        let y2 = y0 - 1.0 + 2.0 * UNSKEW_FACTOR;
 
         // Calculate the hashed gradient indices of the three corners
         let gi0 = self.hash(ix, iy);
@@ -85,17 +84,13 @@ impl Noise for Simplex {
         x *= self.scale;
         y *= self.scale;
 
-        // Skew/Unskew factors.
-        const F2: f32 = 0.3660254037844386;
-        const G2: f32 = 0.21132486540518713;
-
         // Skew to determine simplex cell.
-        let s = (x + y) * F2;
+        let s = (x + y) * SKEW_FACTOR;
         let ix = (x + s).floor() as i32;
         let iy = (y + s).floor() as i32;
 
         // Unskew to get offsets.
-        let t = ((ix + iy) as f32) * G2;
+        let t = ((ix + iy) as f32) * UNSKEW_FACTOR;
         let x0 = x - (ix as f32 - t);
         let y0 = y - (iy as f32 - t);
 
@@ -103,10 +98,10 @@ impl Noise for Simplex {
         let (i1, j1) = if x0 > y0 { (1, 0) } else { (0, 1) };
 
         // Offsets for the three corners.
-        let x1 = x0 - i1 as f32 + G2;
-        let y1 = y0 - j1 as f32 + G2;
-        let x2 = x0 - 1.0 + 2.0 * G2;
-        let y2 = y0 - 1.0 + 2.0 * G2;
+        let x1 = x0 - i1 as f32 + UNSKEW_FACTOR;
+        let y1 = y0 - j1 as f32 + UNSKEW_FACTOR;
+        let x2 = x0 - 1.0 + 2.0 * UNSKEW_FACTOR;
+        let y2 = y0 - 1.0 + 2.0 * UNSKEW_FACTOR;
 
         // Get gradient indices.
         let gi0 = self.hash(ix, iy);
@@ -114,9 +109,9 @@ impl Noise for Simplex {
         let gi2 = self.hash(ix + 1, iy + 1);
 
         // Compute contributions and gradients for each corner.
-        let (n0, dx0, dy0) = corner_contrib_and_grad(x0, y0, gi0);
-        let (n1, dx1, dy1) = corner_contrib_and_grad(x1, y1, gi1);
-        let (n2, dx2, dy2) = corner_contrib_and_grad(x2, y2, gi2);
+        let (_n0, dx0, dy0) = corner_contrib_and_grad(x0, y0, gi0);
+        let (_n1, dx1, dy1) = corner_contrib_and_grad(x1, y1, gi1);
+        let (_n2, dx2, dy2) = corner_contrib_and_grad(x2, y2, gi2);
 
         // Sum up derivatives. The sample function multiplies the sum by 70.
         let dnoise_dx = 70.0 * (dx0 + dx1 + dx2);
@@ -157,8 +152,8 @@ fn corner_contrib(x: f32, y: f32, gi: usize) -> f32 {
 
 // Helper function: computes both contribution and its gradient for a corner.
 // For a given offset (dx, dy) and gradient index gi, let:
-//   t = 0.5 - dx² - dy²,
-//   contribution = t⁴ * (gx * dx + gy * dy)
+//   t = 0.5 - dx^2 - dy^2,
+//   contribution = t^4 * (gx * dx + gy * dy)
 // Then its partial derivatives (with respect to dx and dy) are:
 fn corner_contrib_and_grad(x: f32, y: f32, gi: usize) -> (f32, f32, f32) {
     let t = 0.5 - x * x - y * y;

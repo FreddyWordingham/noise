@@ -4,6 +4,9 @@ use std::f32::consts::PI;
 
 use crate::Noise;
 
+const SKEW_FACTOR: f32 = 0.3090169943749474; // (sqrt(5) - 1) / 4;
+const UNSKEW_FACTOR: f32 = 0.1381966011250105; // (5 - sqrt(5)) / 20;
+
 pub struct OpenSimplex {
     scale: f32,
     perm: [u8; 512],
@@ -30,14 +33,12 @@ impl OpenSimplex {
 
     // 4D Simplex noise.
     fn simplex4d(&self, x: f32, y: f32, z: f32, w: f32) -> f32 {
-        let F4 = (5.0_f32.sqrt() - 1.0) / 4.0;
-        let G4 = (5.0 - 5.0_f32.sqrt()) / 20.0;
-        let s = (x + y + z + w) * F4;
+        let s = (x + y + z + w) * SKEW_FACTOR;
         let i = (x + s).floor() as i32;
         let j = (y + s).floor() as i32;
         let k = (z + s).floor() as i32;
         let l = (w + s).floor() as i32;
-        let t = (i + j + k + l) as f32 * G4;
+        let t = (i + j + k + l) as f32 * UNSKEW_FACTOR;
         let x0 = x - (i as f32 - t);
         let y0 = y - (j as f32 - t);
         let z0 = z - (k as f32 - t);
@@ -91,22 +92,22 @@ impl OpenSimplex {
         let k3 = if rank[2] >= 1 { 1 } else { 0 };
         let l3 = if rank[3] >= 1 { 1 } else { 0 };
 
-        let x1 = x0 - i1 as f32 + G4;
-        let y1 = y0 - j1 as f32 + G4;
-        let z1 = z0 - k1 as f32 + G4;
-        let w1 = w0 - l1 as f32 + G4;
-        let x2 = x0 - i2 as f32 + 2.0 * G4;
-        let y2 = y0 - j2 as f32 + 2.0 * G4;
-        let z2 = z0 - k2 as f32 + 2.0 * G4;
-        let w2 = w0 - l2 as f32 + 2.0 * G4;
-        let x3 = x0 - i3 as f32 + 3.0 * G4;
-        let y3 = y0 - j3 as f32 + 3.0 * G4;
-        let z3 = z0 - k3 as f32 + 3.0 * G4;
-        let w3 = w0 - l3 as f32 + 3.0 * G4;
-        let x4 = x0 - 1.0 + 4.0 * G4;
-        let y4 = y0 - 1.0 + 4.0 * G4;
-        let z4 = z0 - 1.0 + 4.0 * G4;
-        let w4 = w0 - 1.0 + 4.0 * G4;
+        let x1 = x0 - i1 as f32 + UNSKEW_FACTOR;
+        let y1 = y0 - j1 as f32 + UNSKEW_FACTOR;
+        let z1 = z0 - k1 as f32 + UNSKEW_FACTOR;
+        let w1 = w0 - l1 as f32 + UNSKEW_FACTOR;
+        let x2 = x0 - i2 as f32 + 2.0 * UNSKEW_FACTOR;
+        let y2 = y0 - j2 as f32 + 2.0 * UNSKEW_FACTOR;
+        let z2 = z0 - k2 as f32 + 2.0 * UNSKEW_FACTOR;
+        let w2 = w0 - l2 as f32 + 2.0 * UNSKEW_FACTOR;
+        let x3 = x0 - i3 as f32 + 3.0 * UNSKEW_FACTOR;
+        let y3 = y0 - j3 as f32 + 3.0 * UNSKEW_FACTOR;
+        let z3 = z0 - k3 as f32 + 3.0 * UNSKEW_FACTOR;
+        let w3 = w0 - l3 as f32 + 3.0 * UNSKEW_FACTOR;
+        let x4 = x0 - 1.0 + 4.0 * UNSKEW_FACTOR;
+        let y4 = y0 - 1.0 + 4.0 * UNSKEW_FACTOR;
+        let z4 = z0 - 1.0 + 4.0 * UNSKEW_FACTOR;
+        let w4 = w0 - 1.0 + 4.0 * UNSKEW_FACTOR;
 
         let mut n0 = 0.0;
         let mut n1 = 0.0;
@@ -150,102 +151,120 @@ impl OpenSimplex {
 
     // 4D Simplex noise with analytic gradient.
     fn simplex4d_with_grad(&self, x: f32, y: f32, z: f32, w: f32) -> (f32, (f32, f32, f32, f32)) {
-        let F4 = (5.0_f32.sqrt() - 1.0) / 4.0;
-        let G4 = (5.0 - 5.0_f32.sqrt()) / 20.0;
-        let s = (x + y + z + w) * F4;
-        let i = (x + s).floor() as i32;
-        let j = (y + s).floor() as i32;
-        let k = (z + s).floor() as i32;
-        let l = (w + s).floor() as i32;
-        let t = (i + j + k + l) as f32 * G4;
-        let X0 = i as f32 - t;
-        let Y0 = j as f32 - t;
-        let Z0 = k as f32 - t;
-        let W0 = l as f32 - t;
-        let x0 = x - X0;
-        let y0 = y - Y0;
-        let z0 = z - Z0;
-        let w0 = w - W0;
+        let skew_factor_4d = (5.0_f32.sqrt() - 1.0) / 4.0;
+        let unskew_factor_4d = (5.0 - 5.0_f32.sqrt()) / 20.0;
+        let skew_sum = (x + y + z + w) * skew_factor_4d;
 
-        let mut rank = [0; 4];
-        if x0 > y0 {
-            rank[0] += 1
+        let cell_x = (x + skew_sum).floor() as i32;
+        let cell_y = (y + skew_sum).floor() as i32;
+        let cell_z = (z + skew_sum).floor() as i32;
+        let cell_w = (w + skew_sum).floor() as i32;
+
+        let unskew_offset = (cell_x + cell_y + cell_z + cell_w) as f32 * unskew_factor_4d;
+        let origin_x = cell_x as f32 - unskew_offset;
+        let origin_y = cell_y as f32 - unskew_offset;
+        let origin_z = cell_z as f32 - unskew_offset;
+        let origin_w = cell_w as f32 - unskew_offset;
+
+        let local_x0 = x - origin_x;
+        let local_y0 = y - origin_y;
+        let local_z0 = z - origin_z;
+        let local_w0 = w - origin_w;
+
+        let mut component_rank = [0; 4];
+        if local_x0 > local_y0 {
+            component_rank[0] += 1;
         } else {
-            rank[1] += 1;
+            component_rank[1] += 1;
         }
-        if x0 > z0 {
-            rank[0] += 1
+        if local_x0 > local_z0 {
+            component_rank[0] += 1;
         } else {
-            rank[2] += 1;
+            component_rank[2] += 1;
         }
-        if x0 > w0 {
-            rank[0] += 1
+        if local_x0 > local_w0 {
+            component_rank[0] += 1;
         } else {
-            rank[3] += 1;
+            component_rank[3] += 1;
         }
-        if y0 > z0 {
-            rank[1] += 1
+        if local_y0 > local_z0 {
+            component_rank[1] += 1;
         } else {
-            rank[2] += 1;
+            component_rank[2] += 1;
         }
-        if y0 > w0 {
-            rank[1] += 1
+        if local_y0 > local_w0 {
+            component_rank[1] += 1;
         } else {
-            rank[3] += 1;
+            component_rank[3] += 1;
         }
-        if z0 > w0 {
-            rank[2] += 1
+        if local_z0 > local_w0 {
+            component_rank[2] += 1;
         } else {
-            rank[3] += 1;
+            component_rank[3] += 1;
         }
 
-        let i1 = if rank[0] >= 3 { 1 } else { 0 };
-        let j1 = if rank[1] >= 3 { 1 } else { 0 };
-        let k1 = if rank[2] >= 3 { 1 } else { 0 };
-        let l1 = if rank[3] >= 3 { 1 } else { 0 };
+        let offset1_x = if component_rank[0] >= 3 { 1 } else { 0 };
+        let offset1_y = if component_rank[1] >= 3 { 1 } else { 0 };
+        let offset1_z = if component_rank[2] >= 3 { 1 } else { 0 };
+        let offset1_w = if component_rank[3] >= 3 { 1 } else { 0 };
 
-        let i2 = if rank[0] >= 2 { 1 } else { 0 };
-        let j2 = if rank[1] >= 2 { 1 } else { 0 };
-        let k2 = if rank[2] >= 2 { 1 } else { 0 };
-        let l2 = if rank[3] >= 2 { 1 } else { 0 };
+        let offset2_x = if component_rank[0] >= 2 { 1 } else { 0 };
+        let offset2_y = if component_rank[1] >= 2 { 1 } else { 0 };
+        let offset2_z = if component_rank[2] >= 2 { 1 } else { 0 };
+        let offset2_w = if component_rank[3] >= 2 { 1 } else { 0 };
 
-        let i3 = if rank[0] >= 1 { 1 } else { 0 };
-        let j3 = if rank[1] >= 1 { 1 } else { 0 };
-        let k3 = if rank[2] >= 1 { 1 } else { 0 };
-        let l3 = if rank[3] >= 1 { 1 } else { 0 };
+        let offset3_x = if component_rank[0] >= 1 { 1 } else { 0 };
+        let offset3_y = if component_rank[1] >= 1 { 1 } else { 0 };
+        let offset3_z = if component_rank[2] >= 1 { 1 } else { 0 };
+        let offset3_w = if component_rank[3] >= 1 { 1 } else { 0 };
 
-        let x1 = x0 - i1 as f32 + G4;
-        let y1 = y0 - j1 as f32 + G4;
-        let z1 = z0 - k1 as f32 + G4;
-        let w1 = w0 - l1 as f32 + G4;
-        let x2 = x0 - i2 as f32 + 2.0 * G4;
-        let y2 = y0 - j2 as f32 + 2.0 * G4;
-        let z2 = z0 - k2 as f32 + 2.0 * G4;
-        let w2 = w0 - l2 as f32 + 2.0 * G4;
-        let x3 = x0 - i3 as f32 + 3.0 * G4;
-        let y3 = y0 - j3 as f32 + 3.0 * G4;
-        let z3 = z0 - k3 as f32 + 3.0 * G4;
-        let w3 = w0 - l3 as f32 + 3.0 * G4;
-        let x4 = x0 - 1.0 + 4.0 * G4;
-        let y4 = y0 - 1.0 + 4.0 * G4;
-        let z4 = z0 - 1.0 + 4.0 * G4;
-        let w4 = w0 - 1.0 + 4.0 * G4;
+        let simplex_corner1_x = local_x0 - offset1_x as f32 + unskew_factor_4d;
+        let simplex_corner1_y = local_y0 - offset1_y as f32 + unskew_factor_4d;
+        let simplex_corner1_z = local_z0 - offset1_z as f32 + unskew_factor_4d;
+        let simplex_corner1_w = local_w0 - offset1_w as f32 + unskew_factor_4d;
 
-        let mut noise = 0.0;
-        let mut dnoise_dx = 0.0;
-        let mut dnoise_dy = 0.0;
-        let mut dnoise_dz = 0.0;
-        let mut dnoise_dw = 0.0;
+        let simplex_corner2_x = local_x0 - offset2_x as f32 + 2.0 * unskew_factor_4d;
+        let simplex_corner2_y = local_y0 - offset2_y as f32 + 2.0 * unskew_factor_4d;
+        let simplex_corner2_z = local_z0 - offset2_z as f32 + 2.0 * unskew_factor_4d;
+        let simplex_corner2_w = local_w0 - offset2_w as f32 + 2.0 * unskew_factor_4d;
 
-        // Helper: process one simplex corner.
-        let mut process_corner =
-            |xi: f32, yi: f32, zi: f32, wi: f32, ii: i32, jj: i32, kk: i32, ll: i32| {
-                let t = 0.6 - xi * xi - yi * yi - zi * zi - wi * wi;
-                if t > 0.0 {
-                    let t2 = t * t;
-                    let t4 = t2 * t2;
-                    let gi = self.hash4(ii, jj, kk, ll);
-                    const GRAD4: [(f32, f32, f32, f32); 32] = [
+        let simplex_corner3_x = local_x0 - offset3_x as f32 + 3.0 * unskew_factor_4d;
+        let simplex_corner3_y = local_y0 - offset3_y as f32 + 3.0 * unskew_factor_4d;
+        let simplex_corner3_z = local_z0 - offset3_z as f32 + 3.0 * unskew_factor_4d;
+        let simplex_corner3_w = local_w0 - offset3_w as f32 + 3.0 * unskew_factor_4d;
+
+        let simplex_corner4_x = local_x0 - 1.0 + 4.0 * unskew_factor_4d;
+        let simplex_corner4_y = local_y0 - 1.0 + 4.0 * unskew_factor_4d;
+        let simplex_corner4_z = local_z0 - 1.0 + 4.0 * unskew_factor_4d;
+        let simplex_corner4_w = local_w0 - 1.0 + 4.0 * unskew_factor_4d;
+
+        let mut noise_value = 0.0;
+        let mut noise_deriv_x = 0.0;
+        let mut noise_deriv_y = 0.0;
+        let mut noise_deriv_z = 0.0;
+        let mut noise_deriv_w = 0.0;
+
+        // Process a simplex corner contribution.
+        let mut process_simplex_corner =
+            |dx: f32,
+             dy: f32,
+             dz: f32,
+             dw: f32,
+             offset_cell_x: i32,
+             offset_cell_y: i32,
+             offset_cell_z: i32,
+             offset_cell_w: i32| {
+                let attenuation = 0.6 - dx * dx - dy * dy - dz * dz - dw * dw;
+                if attenuation > 0.0 {
+                    let attenuation2 = attenuation * attenuation;
+                    let attenuation4 = attenuation2 * attenuation2;
+                    let grad_index = self.hash4(
+                        cell_x + offset_cell_x,
+                        cell_y + offset_cell_y,
+                        cell_z + offset_cell_z,
+                        cell_w + offset_cell_w,
+                    );
+                    const GRADIENTS_4D: [(f32, f32, f32, f32); 32] = [
                         (0.0, 1.0, 1.0, 1.0),
                         (0.0, 1.0, 1.0, -1.0),
                         (0.0, 1.0, -1.0, 1.0),
@@ -279,30 +298,67 @@ impl OpenSimplex {
                         (-1.0, -1.0, 1.0, 0.0),
                         (-1.0, -1.0, -1.0, 0.0),
                     ];
-                    let grad = GRAD4[gi as usize % 32];
-                    let dot = grad.0 * xi + grad.1 * yi + grad.2 * zi + grad.3 * wi;
-                    noise += t4 * dot;
-                    let common = -8.0 * t2 * t * dot;
-                    dnoise_dx += common * xi + t4 * grad.0;
-                    dnoise_dy += common * yi + t4 * grad.1;
-                    dnoise_dz += common * zi + t4 * grad.2;
-                    dnoise_dw += common * wi + t4 * grad.3;
+                    let gradient = GRADIENTS_4D[grad_index as usize % 32];
+                    let dot_product =
+                        gradient.0 * dx + gradient.1 * dy + gradient.2 * dz + gradient.3 * dw;
+                    noise_value += attenuation4 * dot_product;
+                    let common_term = -8.0 * attenuation2 * attenuation * dot_product;
+                    noise_deriv_x += common_term * dx + attenuation4 * gradient.0;
+                    noise_deriv_y += common_term * dy + attenuation4 * gradient.1;
+                    noise_deriv_z += common_term * dz + attenuation4 * gradient.2;
+                    noise_deriv_w += common_term * dw + attenuation4 * gradient.3;
                 }
             };
 
-        process_corner(x0, y0, z0, w0, i, j, k, l);
-        process_corner(x1, y1, z1, w1, i + i1, j + j1, k + k1, l + l1);
-        process_corner(x2, y2, z2, w2, i + i2, j + j2, k + k2, l + l2);
-        process_corner(x3, y3, z3, w3, i + i3, j + j3, k + k3, l + l3);
-        process_corner(x4, y4, z4, w4, i + 1, j + 1, k + 1, l + 1);
+        process_simplex_corner(local_x0, local_y0, local_z0, local_w0, 0, 0, 0, 0);
+        process_simplex_corner(
+            simplex_corner1_x,
+            simplex_corner1_y,
+            simplex_corner1_z,
+            simplex_corner1_w,
+            offset1_x,
+            offset1_y,
+            offset1_z,
+            offset1_w,
+        );
+        process_simplex_corner(
+            simplex_corner2_x,
+            simplex_corner2_y,
+            simplex_corner2_z,
+            simplex_corner2_w,
+            offset2_x,
+            offset2_y,
+            offset2_z,
+            offset2_w,
+        );
+        process_simplex_corner(
+            simplex_corner3_x,
+            simplex_corner3_y,
+            simplex_corner3_z,
+            simplex_corner3_w,
+            offset3_x,
+            offset3_y,
+            offset3_z,
+            offset3_w,
+        );
+        process_simplex_corner(
+            simplex_corner4_x,
+            simplex_corner4_y,
+            simplex_corner4_z,
+            simplex_corner4_w,
+            1,
+            1,
+            1,
+            1,
+        );
 
         (
-            27.0 * noise,
+            27.0 * noise_value,
             (
-                27.0 * dnoise_dx,
-                27.0 * dnoise_dy,
-                27.0 * dnoise_dz,
-                27.0 * dnoise_dw,
+                27.0 * noise_deriv_x,
+                27.0 * noise_deriv_y,
+                27.0 * noise_deriv_z,
+                27.0 * noise_deriv_w,
             ),
         )
     }
