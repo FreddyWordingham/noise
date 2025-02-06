@@ -24,14 +24,32 @@ let gradient = noise.gradient([0.25, 0.75]);
 You can stack multiple weighted noise functions together into a single noise function using the `Stack` struct:
 
 ```rust
-let noise = Stack::new(vec![
-    (Box::new(Perlin::new((5, 5), &mut rng)), 1.0),
-    (Box::new(Perlin::new((7, 7), &mut rng)), 0.5),
-    (Box::new(Perlin::new((11, 11), &mut rng)), 0.25),
-    (Box::new(Perlin::new((23, 23), &mut rng)), 0.125),
-    (Box::new(Perlin::new((43, 43), &mut rng)), 0.0625),
-]);
+let noise = Stack::new(
+    GradientFunction::Noop,
+    vec![
+        (Box::new(Perlin::new((5, 5), &mut rng)), 1.0),
+        (Box::new(Perlin::new((7, 7), &mut rng)), 0.5),
+        (Box::new(Perlin::new((11, 11), &mut rng)), 0.25),
+        (Box::new(Perlin::new((23, 23), &mut rng)), 0.125),
+        (Box::new(Perlin::new((43, 43), &mut rng)), 0.0625),
+    ]
+);
 ```
+
+The `GradientFunction` enum can be used to apply an additional weighting to the sampled value of each noise function influenced by the magnitude of the current gradient.
+This can be can be useful for creating effects such as ridges or terraces.
+The `Noop` variant does not apply any additional weighting.
+
+#### Gradient Functions
+
+- `Noop`: No change in weighting.
+- `Inverse`: 1/(1 + k \* x).
+- `Exp`: exp(-(scale \* x)^2).
+- `Sigmoid`: 1/(1 + exp(-k \* x)).
+- `Tanh`: (tanh(k \* x) + 1) / 2.
+- `Cosine`: 0.5 \* (cos(frequency \* x) + 1).
+- `Quadratic`: 1/(1 + k \* x^2).
+- `Arctan`: (atan(k \* x) / pi + 0.5).
 
 ## Features
 

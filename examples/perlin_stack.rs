@@ -1,7 +1,7 @@
 use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
-use noisette::{Noise, Perlin, Stack};
+use noisette::{GradientFunction, Noise, Perlin, Stack};
 use rand::prelude::*;
 
 const PERLIN_XS: ((usize, usize), f32) = ((43, 43), 0.0625);
@@ -60,13 +60,16 @@ fn save(data: &Array2<f32>, filename: &str) {
 fn main() {
     let mut rng = thread_rng();
 
-    let noise = Stack::new(vec![
-        (Box::new(Perlin::new(PERLIN_XS.0, &mut rng)), PERLIN_XS.1),
-        (Box::new(Perlin::new(PERLIN_SM.0, &mut rng)), PERLIN_SM.1),
-        (Box::new(Perlin::new(PERLIN_MD.0, &mut rng)), PERLIN_MD.1),
-        (Box::new(Perlin::new(PERLIN_LG.0, &mut rng)), PERLIN_LG.1),
-        (Box::new(Perlin::new(PERLIN_XL.0, &mut rng)), PERLIN_XL.1),
-    ]);
+    let noise = Stack::new(
+        GradientFunction::Noop,
+        vec![
+            (Box::new(Perlin::new(PERLIN_XL.0, &mut rng)), PERLIN_XL.1),
+            (Box::new(Perlin::new(PERLIN_LG.0, &mut rng)), PERLIN_LG.1),
+            (Box::new(Perlin::new(PERLIN_MD.0, &mut rng)), PERLIN_MD.1),
+            (Box::new(Perlin::new(PERLIN_SM.0, &mut rng)), PERLIN_SM.1),
+            (Box::new(Perlin::new(PERLIN_XS.0, &mut rng)), PERLIN_XS.1),
+        ],
+    );
     let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);
 
     let (min, max) = find_min_max(&samples);

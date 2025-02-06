@@ -9,5 +9,5 @@ pub use noise::Noise;
 pub use open_simplex::OpenSimplex;
 pub use perlin::Perlin;
 pub use simplex::Simplex;
-pub use stack::Stack;
+pub use stack::{GradientFunction, Stack};
 pub use worley::Worley;

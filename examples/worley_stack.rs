@@ -1,7 +1,7 @@
 use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
-use noisette::{Noise, Stack, Worley};
+use noisette::{GradientFunction, Noise, Stack, Worley};
 use rand::prelude::*;
 
 const WORLEY_XS: (usize, f32) = (127, 0.0625);
@@ -60,13 +60,16 @@ fn save(data: &Array2<f32>, filename: &str) {
 fn main() {
     let mut rng = thread_rng();
 
-    let noise = Stack::new(vec![
-        (Box::new(Worley::new(WORLEY_XS.0, &mut rng)), WORLEY_XS.1),
-        (Box::new(Worley::new(WORLEY_SM.0, &mut rng)), WORLEY_SM.1),
-        (Box::new(Worley::new(WORLEY_MD.0, &mut rng)), WORLEY_MD.1),
-        (Box::new(Worley::new(WORLEY_LG.0, &mut rng)), WORLEY_LG.1),
-        (Box::new(Worley::new(WORLEY_XL.0, &mut rng)), WORLEY_XL.1),
-    ]);
+    let noise = Stack::new(
+        GradientFunction::Noop,
+        vec![
+            (Box::new(Worley::new(WORLEY_XL.0, &mut rng)), WORLEY_XL.1),
+            (Box::new(Worley::new(WORLEY_LG.0, &mut rng)), WORLEY_LG.1),
+            (Box::new(Worley::new(WORLEY_MD.0, &mut rng)), WORLEY_MD.1),
+            (Box::new(Worley::new(WORLEY_SM.0, &mut rng)), WORLEY_SM.1),
+            (Box::new(Worley::new(WORLEY_XS.0, &mut rng)), WORLEY_XS.1),
+        ],
+    );
     let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);
 
     let (min, max) = find_min_max(&samples);

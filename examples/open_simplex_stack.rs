@@ -1,7 +1,7 @@
 use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
-use noisette::{Noise, OpenSimplex, Stack};
+use noisette::{GradientFunction, Noise, OpenSimplex, Stack};
 use rand::prelude::*;
 
 const OPEN_SIMPLEX_XS: (f32, f32) = (43.0e-1, 0.0625);
@@ -60,28 +60,31 @@ fn save(data: &Array2<f32>, filename: &str) {
 fn main() {
     let mut rng = thread_rng();
 
-    let noise = Stack::new(vec![
-        (
-            Box::new(OpenSimplex::new(OPEN_SIMPLEX_XS.0, &mut rng)),
-            OPEN_SIMPLEX_XS.1,
-        ),
-        (
-            Box::new(OpenSimplex::new(OPEN_SIMPLEX_SM.0, &mut rng)),
-            OPEN_SIMPLEX_SM.1,
-        ),
-        (
-            Box::new(OpenSimplex::new(OPEN_SIMPLEX_MD.0, &mut rng)),
-            OPEN_SIMPLEX_MD.1,
-        ),
-        (
-            Box::new(OpenSimplex::new(OPEN_SIMPLEX_LG.0, &mut rng)),
-            OPEN_SIMPLEX_LG.1,
-        ),
-        (
-            Box::new(OpenSimplex::new(OPEN_SIMPLEX_XL.0, &mut rng)),
-            OPEN_SIMPLEX_XL.1,
-        ),
-    ]);
+    let noise = Stack::new(
+        GradientFunction::Noop,
+        vec![
+            (
+                Box::new(OpenSimplex::new(OPEN_SIMPLEX_XL.0, &mut rng)),
+                OPEN_SIMPLEX_XL.1,
+            ),
+            (
+                Box::new(OpenSimplex::new(OPEN_SIMPLEX_LG.0, &mut rng)),
+                OPEN_SIMPLEX_LG.1,
+            ),
+            (
+                Box::new(OpenSimplex::new(OPEN_SIMPLEX_MD.0, &mut rng)),
+                OPEN_SIMPLEX_MD.1,
+            ),
+            (
+                Box::new(OpenSimplex::new(OPEN_SIMPLEX_SM.0, &mut rng)),
+                OPEN_SIMPLEX_SM.1,
+            ),
+            (
+                Box::new(OpenSimplex::new(OPEN_SIMPLEX_XS.0, &mut rng)),
+                OPEN_SIMPLEX_XS.1,
+            ),
+        ],
+    );
     let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);
 
     let (min, max) = find_min_max(&samples);
