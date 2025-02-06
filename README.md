@@ -1,6 +1,10 @@
-# noise
+# Noisette
 
-2D Noise generation utilities
+[![Crates.io](https://img.shields.io/crates/v/noisette)](https://crates.io/crates/noisette)
+[![Docs.rs](https://docs.rs/noisette/badge.svg)](https://docs.rs/noisette)
+![License](https://img.shields.io/crates/l/noisette)
+
+A library for generating 2D noise functions with analytical gradients.
 
 ## Usage
 

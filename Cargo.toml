@@ -2,7 +2,7 @@
 name = "noisette"
 version = "0.1.0"
 edition = "2021"
-description = "A simple library for generating 2D noise"
+description = "A library for generating 2D noise functions with analytical gradients"
 license = "MIT"
 
 [dependencies]
