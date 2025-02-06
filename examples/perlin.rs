@@ -5,7 +5,7 @@ use noisette::{Noise, Perlin};
 use rand::prelude::*;
 
 const SHAPE: (usize, usize) = (5, 7);
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/perlin-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/perlin-gradient.png";
 

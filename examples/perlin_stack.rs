@@ -9,7 +9,7 @@ const PERLIN_SM: ((usize, usize), f32) = ((31, 31), 0.125);
 const PERLIN_MD: ((usize, usize), f32) = ((21, 21), 0.25);
 const PERLIN_LG: ((usize, usize), f32) = ((11, 11), 0.5);
 const PERLIN_XL: ((usize, usize), f32) = ((5, 5), 1.0);
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/perlin_stack-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/perlin_stack-gradient.png";
 

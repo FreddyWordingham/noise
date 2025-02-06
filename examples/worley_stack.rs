@@ -9,7 +9,7 @@ const WORLEY_SM: (usize, f32) = (81, 0.125);
 const WORLEY_MD: (usize, f32) = (51, 0.25);
 const WORLEY_LG: (usize, f32) = (31, 0.5);
 const WORLEY_XL: (usize, f32) = (11, 1.0);
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/worley_stack-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/worley_stack-gradient.png";
 

@@ -9,7 +9,7 @@ const OPEN_SIMPLEX_SM: (f32, f32) = (31.0e-1, 0.125);
 const OPEN_SIMPLEX_MD: (f32, f32) = (21.0e-1, 0.25);
 const OPEN_SIMPLEX_LG: (f32, f32) = (11.0e-1, 0.5);
 const OPEN_SIMPLEX_XL: (f32, f32) = (5.0e-1, 1.0);
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/open_simplex_stack-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/open_simplex_stack-gradient.png";
 

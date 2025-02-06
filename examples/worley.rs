@@ -5,7 +5,7 @@ use noisette::{Noise, Worley};
 use rand::prelude::*;
 
 const NUM_POINTS: usize = 17;
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/worley-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/worley-gradient.png";
 

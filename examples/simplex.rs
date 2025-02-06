@@ -5,7 +5,7 @@ use noisette::{Noise, Simplex};
 use rand::prelude::*;
 
 const SCALE: f32 = 32.0;
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/simplex-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/simplex-gradient.png";
 

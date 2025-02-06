@@ -4,7 +4,7 @@ use ndarray_images::Image;
 use noisette::{Noise, OpenSimplex};
 use rand::prelude::*;
 
-const RESOLUTION: (usize, usize) = (1024, 1024);
+const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/open_simplex-samples.png";
 const OUTPUT_GRADIENT_FILE: &str = "output/open_simplex-gradient.png";
 
