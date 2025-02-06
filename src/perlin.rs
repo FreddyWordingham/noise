@@ -15,7 +15,7 @@ impl Perlin {
         assert!(shape.0 > 0 && shape.1 > 0);
 
         let vectors = Array2::from_shape_fn(shape, |(_x, _y)| {
-            let angle = TAU * rng.gen::<f32>();
+            let angle = TAU * rng.random::<f32>();
             Unit::new_normalize(Vector2::new(angle.cos(), angle.sin()))
         });
 

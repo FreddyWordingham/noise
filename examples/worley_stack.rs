@@ -2,7 +2,7 @@ use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
 use noisette::{GradientFunction, Noise, Stack, Worley};
-use rand::prelude::*;
+use rand::rng;
 
 const WORLEY_XS: (usize, f32) = (127, 0.0625);
 const WORLEY_SM: (usize, f32) = (81, 0.125);
@@ -58,7 +58,7 @@ fn save(data: &Array2<f32>, filename: &str) {
 }
 
 fn main() {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     let noise = Stack::new(
         GradientFunction::Noop,

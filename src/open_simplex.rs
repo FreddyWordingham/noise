@@ -20,7 +20,7 @@ impl OpenSimplex {
             *v = i as u8;
         }
         for i in (1..256).rev() {
-            let j = rng.gen_range(0..=i);
+            let j = rng.random_range(0..=i);
             p.swap(i, j);
         }
         // Duplicate to avoid wrapping.

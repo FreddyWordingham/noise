@@ -2,7 +2,7 @@ use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
 use noisette::{GradientFunction, Noise, Simplex, Stack};
-use rand::prelude::*;
+use rand::rng;
 
 const SIMPLEX_XS: (f32, f32) = (43.0, 0.0625);
 const SIMPLEX_SM: (f32, f32) = (31.0, 0.125);
@@ -58,7 +58,7 @@ fn save(data: &Array2<f32>, filename: &str) {
 }
 
 fn main() {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     let noise = Stack::new(
         GradientFunction::Noop,

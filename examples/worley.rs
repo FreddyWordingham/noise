@@ -2,7 +2,7 @@ use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
 use noisette::{Noise, Worley};
-use rand::prelude::*;
+use rand::rng;
 
 const NUM_POINTS: usize = 17;
 const RESOLUTION: (usize, usize) = (256, 256);
@@ -54,7 +54,7 @@ fn save(data: &Array2<f32>, filename: &str) {
 }
 
 fn main() {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     let noise = Worley::new(NUM_POINTS, &mut rng);
     let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);

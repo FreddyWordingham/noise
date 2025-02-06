@@ -13,7 +13,7 @@ impl Worley {
     /// Creates a new Worley noise generator with the specified number of feature points.
     pub fn new<R: Rng>(num_points: usize, mut rng: R) -> Self {
         let points = (0..num_points)
-            .map(|_| Vector2::new(rng.gen::<f32>(), rng.gen::<f32>()))
+            .map(|_| Vector2::new(rng.random::<f32>(), rng.random::<f32>()))
             .collect();
         Self { points }
     }

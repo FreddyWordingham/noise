@@ -2,7 +2,7 @@ use nalgebra::Vector2;
 use ndarray::{Array2, Zip};
 use ndarray_images::Image;
 use noisette::{Noise, OpenSimplex};
-use rand::prelude::*;
+use rand::rng;
 
 const RESOLUTION: (usize, usize) = (256, 256);
 const OUTPUT_NOISE_FILE: &str = "output/open_simplex-samples.png";
@@ -53,7 +53,7 @@ fn save(data: &Array2<f32>, filename: &str) {
 }
 
 fn main() {
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     let noise = OpenSimplex::new(2.0, &mut rng);
     let (mut samples, gradients) = sample_noise(RESOLUTION, &noise);

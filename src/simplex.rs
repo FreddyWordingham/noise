@@ -20,7 +20,7 @@ impl Simplex {
         }
         // Shuffle the permutation
         for i in (1..256).rev() {
-            let j = rng.gen_range(0..=i);
+            let j = rng.random_range(0..=i);
             p.swap(i, j);
         }
 
